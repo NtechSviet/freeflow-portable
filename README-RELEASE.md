@@ -37,6 +37,22 @@ Ensuite : `Ctrl+Alt+Espace` dicte, `Ctrl+Alt+H` ouvre le panneau. Au premier dé
 
 La dictée est identique (même application, même modèle) : seul le rangement change. Mode d'emploi complet : [INSTALLER.md](https://github.com/NtechSviet/freeflow-portable/blob/main/INSTALLER.md) · dépannage : [docs/DEPANNAGE.md](https://github.com/NtechSviet/freeflow-portable/blob/main/docs/DEPANNAGE.md).
 
+## fermer = tout arrêter
+
+Clic droit sur l'icône de la zone de notification (près de l'horloge) → **Quitter**. Il ne doit rester aucun processus `FreeFlow` ni `freeflow-stt` ; le moteur de transcription occupe ~700 Mo et garde le port 48123. Cette version s'en charge, même si l'application est tuée brutalement. Vérification :
+
+```powershell
+Get-Process FreeFlow, freeflow-stt -ErrorAction SilentlyContinue   # aucun résultat attendu
+```
+
+## vérification de l'archive
+
+SHA-256 (PowerShell) : `Get-FileHash .\FreeFlow-Portable-1.2.0-win-x64.7z -Algorithm SHA256`
+
+```
+a8504cee985c370357bb95a3a62881ff6cd0d99e83dd957e223c92a4cb4173b3
+```
+
 Si quelque chose coince, [ouvrez une issue](https://github.com/NtechSviet/freeflow-portable/issues) en joignant `journal-demarrage.txt` (créé par `Diagnostic.cmd`) et `data\logs\freeflow.log`.
 
 **Licence et crédits** — FreeFlow © Alan, licence MIT : <https://github.com/AlanECE/freeflow>. Ce dépôt propose un packaging non officiel, sans lien avec l'auteur ; la version d'origine (Windows **et Mac**, avec un vrai installateur) est publiée sur [les Releases d'Alan](https://github.com/AlanECE/freeflow/releases/latest). L'emballage portable (scripts, notices, correctif) est sous licence MIT, voir [LICENSE](https://github.com/NtechSviet/freeflow-portable/blob/main/LICENSE).
