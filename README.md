@@ -10,6 +10,7 @@ les binaires — voir « Ce qui n'est pas ici » plus bas.
 ```
 FreeFlow Portable.lnk      lanceur (icône FreeFlow)
 Lancer FreeFlow.cmd        lanceur texte (même chose, sans raccourci)
+Creer le raccourci.cmd     recrée le raccourci si le dossier a été déplacé
 Diagnostic.cmd             démarrage manuel + journal complet si ça ne part pas
 Reparer-Etiquettes.cmd     répare l'étiquette d'intégrité du dossier (voir Dépannage)
 LISEZ-MOI.txt              notice pour l'utilisateur final
