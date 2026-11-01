@@ -1,0 +1,19 @@
+# Dossier produit par build-portable.ps1
+FreeFlow-Portable/
+dist/
+out/
+
+# Profil utilisateur : ne doit JAMAIS être publié (journal, historique,
+# dictionnaire, réunions, réglages, modèle de 4 Go)
+data/
+**/data/models/
+*.log
+journal-demarrage.txt
+
+# Raccourci généré (contient un chemin absolu)
+*.lnk
+
+# Divers
+Thumbs.db
+desktop.ini
+node_modules/

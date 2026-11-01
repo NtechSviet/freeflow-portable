@@ -1,0 +1,67 @@
+FreeFlow 1.2.0 - version portable (Windows x64)
+===============================================
+
+Aucune installation. Tout tient dans ce dossier, y compris votre profil,
+vos reglages, votre dictionnaire/historique et le modele vocal.
+
+DEMARRER
+--------
+1) Double-cliquez sur  "FreeFlow Portable"  (raccourci dans ce dossier),
+   ou sur "Lancer FreeFlow.cmd", ou directement sur FreeFlow.exe : les trois
+   fonctionnent.
+2) L'icone apparait dans la zone de notification ; raccourcis :
+   Ctrl + Alt + Espace  -> dicter
+   Ctrl + Alt + H       -> panneau / hub (reglages, dictionnaire, historique)
+
+Le mode portable est actif parce que le fichier "portable.txt" se trouve a
+cote de FreeFlow.exe : le profil est ecrit dans .\data au lieu de
+C:\Users\<vous>\AppData. Deplacez le dossier entier et tout suit.
+
+OU SONT MES DONNEES
+-------------------
+data\                     votre profil (reglages, dictionnaire, historique,
+                          notes, reunions, caches) - deplacable avec le dossier
+data\models\              le modele vocal large-v3 deja telecharge (~4,2 Go) :
+                          la dictee fonctionne hors ligne
+data\logs\freeflow.log    journal de l'application : demarrage, raccourcis,
+                          transcription, collage, erreurs (mode developpeur)
+data\settings.json        vos reglages (raccourcis, langue, etc.)
+journal-demarrage.txt     cree par Diagnostic.cmd (sortie de demarrage)
+
+Poids total du dossier : environ 6,4 Go.
+
+DEPANNAGE
+---------
+- La dictee s'affiche dans la pastille mais le texte ne s'ecrit pas dans les
+  autres applications (Word, Notepad, Chrome, Discord, applications Electron) :
+  lancez "Reparer-Etiquettes.cmd", puis quittez et relancez FreeFlow.
+  Explication : Windows interdit a un programme de simuler des frappes
+  (Ctrl+V) vers une application "plus protegee" que lui. Si le dossier porte
+  l'etiquette d'integrite "Niveau obligatoire faible", FreeFlow ne peut plus
+  ecrire que dans les applications de meme niveau (barre de recherche Windows,
+  certains utilitaires), ce qui donne exactement ce symptome. Le script remet
+  l'etiquette "Niveau moyen" sur tout le dossier, ce qui retablit le collage
+  partout. En cas de doute, verifiable en une ligne de commande :
+      icacls "C:\...\FreeFlow-Portable"
+  La derniere ligne doit indiquer "Niveau obligatoire moyen" (et non "faible").
+
+- Rien ne se passe / fermeture immediate au demarrage :
+  lancez "Diagnostic.cmd" : il ecrit journal-demarrage.txt (messages et code
+  de sortie). Envoyez ce fichier avec data\logs\freeflow.log.
+  Si le message parle du bac a sable (sandbox) de Chromium, demarrez avec
+  l'option --no-sandbox en attendant :
+      FreeFlow.exe --no-sandbox
+
+- Windows affiche un avertissement (SmartScreen) au premier lancement :
+  "Informations complementaires" puis "Executer quand meme".
+- Port utilise : 48123 (moteur de transcription local, 127.0.0.1 uniquement).
+- FreeFlow n'a pas besoin des droits administrateur. S'il est lance "en
+  administrateur", il ne pourra plus ecrire dans les applications normales
+  (Windows bloque les frappes d'un programme administrateur vers une fenetre
+  non-administrateur) : lancez-le normalement.
+
+DESINSTALLER
+------------
+Supprimez ce dossier. Si vous aviez active le demarrage automatique,
+verifiez qu'aucune entree FreeFlow ne reste dans le gestionnaire de taches
+(onglet Demarrage).

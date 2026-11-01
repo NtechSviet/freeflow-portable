@@ -1,0 +1,13 @@
+# Normalisation des fins de ligne : les .cmd doivent rester en CRLF (cmd.exe
+# gère mal les labels en LF seul), les scripts Node restent en LF.
+* text=auto
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.ico binary
+*.png binary
+*.lnk binary
