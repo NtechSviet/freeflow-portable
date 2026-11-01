@@ -1,4 +1,8 @@
-# FreeFlow Portable (Windows) — Téléchargement direct
+[puce]: # "pastilles"
+
+---
+
+<h3 align="center">FreeFlow Portable — Windows x64</h3>
 
 <p align="center">
   <a href="https://github.com/NtechSviet/freeflow-portable/releases/latest/download/FreeFlow-Portable-1.2.0-win-x64.7z">
@@ -6,34 +10,23 @@
   </a>
 </p>
 
-[puce]:
-![Licence MIT](https://img.shields.io/badge/licence-MIT-blue)
-![Windows 10 et 11 x64](https://img.shields.io/badge/Windows-10_%2F_11_x64-0078D4)
-![Sans installation](https://img.shields.io/badge/installation-aucune-success)
-![Sans compte](https://img.shields.io/badge/compte-aucun-success)
-![FreeFlow 1.2.0](https://img.shields.io/badge/FreeFlow-1.2.0-lightgrey)
+![Licence MIT](https://img.shields.io/badge/licence-MIT-blue) ![Windows 10 et 11 x64](https://img.shields.io/badge/Windows-10_%2F_11_x64-0078D4) ![Sans installation](https://img.shields.io/badge/installation-aucune-success) ![Sans compte](https://img.shields.io/badge/compte-aucun-success) ![FreeFlow 1.2.0](https://img.shields.io/badge/FreeFlow-1.2.0-lightgrey)
 
-**FreeFlow, mais sans installation.** Un dossier = l'application + vos réglages +
-le modèle vocal. On le copie, on le déplace, on le supprime. Rien n'est installé,
-rien n'est écrit dans `%APPDATA%`, et l'administrateur n'est jamais demandé.
+**FreeFlow, mais sans installation.** Un dossier = l'application + vos réglages + le modèle vocal. On le copie, on le déplace, on le supprime. Rien n'est installé, rien n'est écrit dans `%APPDATA%`, l'administrateur n'est jamais demandé.
 
 ## 3 étapes
 
-| | |
+|  |  |
 |---|---|
-| **1. Télécharger** | [**⬇ FreeFlow-Portable-1.2.0-win-x64.7z**](https://github.com/NtechSviet/freeflow-portable/releases/latest/download/FreeFlow-Portable-1.2.0-win-x64.7z) — 904 Mio (ou la [page de la Release](https://github.com/NtechSviet/freeflow-portable/releases/latest) pour les détails, le SHA-256 et les notes de version) |
-| **2. Extraire** | Avec [7-Zip](https://www.7-zip.org) : clic droit sur le `.7z` → *7-Zip* → *Extraire vers « FreeFlow-Portable\ »*. Pas dans `C:\Program Files`. |
+| **1. Télécharger** | Le bouton ci-dessus, ou `FreeFlow-Portable-1.2.0-win-x64.7z` dans la liste **Assets** au bas de cette page — 904 Mio. C'est le seul fichier nécessaire. |
+| **2. Extraire** | Avec [7-Zip](https://www.7-zip.org) : clic droit sur le `.7z` → *7-Zip* → *Extraire vers « FreeFlow-Portable\ »*. **Pas** dans `C:\Program Files`. |
 | **3. Lancer** | Double-clic sur `Lancer FreeFlow.cmd` dans le dossier extrait. |
 
-Ensuite : `Ctrl+Alt+Espace` dicte, `Ctrl+Alt+H` ouvre le panneau. Au premier
-démarrage, le modèle `large-v3` est téléchargé dans `data\models` (~3 Go avec une
-carte NVIDIA, ~0,5 Go en CPU) ; après, tout fonctionne hors ligne.
-
-![Mode portable : le profil et le modèle vivent dans le dossier, pas dans %APPDATA%](docs/mode-portable.svg)
+Ensuite : `Ctrl+Alt+Espace` dicte, `Ctrl+Alt+H` ouvre le panneau. Au premier démarrage, le modèle `large-v3` est téléchargé dans `data\models` (~3 Go avec une carte NVIDIA, ~0,5 Go en CPU) ; après, tout fonctionne hors ligne.
 
 ## Version portable ou version officielle ?
 
-| | FreeFlow officiel | FreeFlow Portable (ce dépôt) |
+|  | FreeFlow officiel | FreeFlow Portable (ce dépôt) |
 |---|---|---|
 | Installation | installateur `.exe` | **aucune**, on extrait une archive |
 | Réglages et dictionnaire | `%APPDATA%\FreeFlow` | **dans le dossier**, `data\` |
@@ -42,17 +35,8 @@ carte NVIDIA, ~0,5 Go en CPU) ; après, tout fonctionne hors ligne.
 | Désinstaller | panneau *Applications* | **supprimer le dossier** |
 | Version Mac | oui | non (Windows x64) |
 
-La dictée est identique (même application, même modèle). Seul le rangement
-change. Détails et dépannage : **[INSTALLER.md](INSTALLER.md)** et
-**[docs/DEPANNAGE.md](docs/DEPANNAGE.md)**.
+La dictée est identique (même application, même modèle) : seul le rangement change. Mode d'emploi complet : [INSTALLER.md](https://github.com/NtechSviet/freeflow-portable/blob/main/INSTALLER.md) · dépannage : [docs/DEPANNAGE.md](https://github.com/NtechSviet/freeflow-portable/blob/main/docs/DEPANNAGE.md).
 
-Si quelque chose coince, [ouvrez une issue](https://github.com/NtechSviet/freeflow-portable/issues)
-en joignant `journal-demarrage.txt` (créé par `Diagnostic.cmd`) et
-`data\logs\freeflow.log`.
+Si quelque chose coince, [ouvrez une issue](https://github.com/NtechSviet/freeflow-portable/issues) en joignant `journal-demarrage.txt` (créé par `Diagnostic.cmd`) et `data\logs\freeflow.log`.
 
-## Licence et crédits
-
-- **FreeFlow** : © Alan — <https://github.com/AlanECE/freeflow>, licence MIT. Ce
-  dépôt propose un packaging non officiel, sans lien avec l'auteur. Archive
-  officielle (Windows et Mac) : [les Releases d'Alan](https://github.com/AlanECE/freeflow/releases/latest).
-- **Cet emballage portable** (scripts, notices, correctif) : MIT, voir [LICENSE](LICENSE).
+**Licence et crédits** — FreeFlow © Alan, licence MIT : <https://github.com/AlanECE/freeflow>. Ce dépôt propose un packaging non officiel, sans lien avec l'auteur ; la version d'origine (Windows **et Mac**, avec un vrai installateur) est publiée sur [les Releases d'Alan](https://github.com/AlanECE/freeflow/releases/latest). L'emballage portable (scripts, notices, correctif) est sous licence MIT, voir [LICENSE](https://github.com/NtechSviet/freeflow-portable/blob/main/LICENSE).
