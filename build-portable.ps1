@@ -87,6 +87,13 @@ if (Test-Path -LiteralPath $unpacked) {
     Copy-Item -Path (Join-Path $unpacked '*') -Destination $appDir -Recurse -Force
 }
 
+Write-Step 'Correctif "arret complet" (moteur sans fantome a la sortie)'
+# tools\patch-quit.js ajoute lib\sidecar.js::stopAll(), son appel dans quitApp()
+# et un garde-fou de sortie (lib\-kill-engine.ps1, copie juste apres).
+& $nodeCmd.Source (Join-Path $PSScriptRoot 'tools\patch-quit.js') $appDir
+if ($LASTEXITCODE -ne 0) { Stop-Build "tools\patch-quit.js a echoue (code $LASTEXITCODE)" }
+New-Item -ItemType Directory -Force -Path (Join-Path $appDir 'lib') | Out-Null
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'portable\lib\-kill-engine.ps1') -Destination (Join-Path $appDir 'lib\-kill-engine.ps1') -Force
 Write-Step 'Application du correctif portable a main.js'
 $mainJs = Join-Path $appDir 'main.js'
 & $nodeCmd.Source (Join-Path $PSScriptRoot 'tools\patch-main.js') $mainJs

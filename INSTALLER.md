@@ -102,10 +102,35 @@ relancez `Creer le raccourci.cmd` : il contient un chemin absolu.
 
 ---
 
+## Arrêter FreeFlow pour de bon
+
+Quitter par l'icône de la zone de notification (**clic droit → Quitter**) arrête
+aussi le moteur de transcription. Il ne doit rester **aucun** processus `FreeFlow`
+ni `freeflow-stt` après quelques secondes. Cette version est corrigée pour cela :
+même si la fenêtre est tuée, si la console est fermée ou si l'application plante,
+un garde-fou arrête le moteur dès que le programme a disparu.
+
+Si des processus traînent quand même (version précédente, arrêt brutal), les
+fermer :
+
+```powershell
+Get-Process FreeFlow, freeflow-stt -ErrorAction SilentlyContinue | Stop-Process -Force
+```
+
+```cmd
+taskkill /IM FreeFlow.exe /T /F
+taskkill /IM freeflow-stt.exe /F
+```
+
+Le moteur occupe ~700 Mo en mémoire ; un `freeflow-stt` oublié garde aussi le port
+`48123` et empêche la nouvelle instance de démarrer proprement.
+
+---
+
 ## Désinstaller
 
-Fermer FreeFlow, supprimer le dossier `FreeFlow-Portable`. C'est tout : rien
-n'est écrit ailleurs (aucune entrée de registre, aucun fichier dans
+Fermer FreeFlow de cette façon, supprimer le dossier `FreeFlow-Portable`. C'est
+tout : rien n'est écrit ailleurs (aucune entrée de registre, aucun fichier dans
 `%APPDATA%`, aucun lancement au démarrage).
 
 ---

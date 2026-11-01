@@ -100,6 +100,18 @@ DEPANNAGE
   non-administrateur) : lancez-le normalement.
 
 
+ARRETER FREEFLOW POUR DE BON
+----------------------------
+Clic droit sur l'icone de la zone de notification > Quitter. Le moteur de
+transcription (freeflow-stt.exe, ~700 Mo) s'arrete aussi : apres quelques
+secondes il ne doit plus rester aucun processus FreeFlow ni freeflow-stt.
+Cette version le garantit meme si la fenetre est tuee ou si l'application
+plante (garde-fou de sortie).
+
+S'il en reste quand meme (version precedente, arret brutal), en une commande :
+    taskkill /IM FreeFlow.exe /T /F
+    taskkill /IM freeflow-stt.exe /F
+
 DESINSTALLER
 ------------
 Fermez FreeFlow (icone de la zone de notification > Quitter), puis supprimez

@@ -109,6 +109,28 @@ l'application de taper dans les fenêtres normales. Tous les cas connus, avec
 leurs causes, sont expliqués dans **[docs/DEPANNAGE.md](docs/DEPANNAGE.md)**
 (étiquette d'intégrité « faible », `--no-sandbox`, UIPI…).
 
+## Arrêter FreeFlow : aucun processus ne doit rester
+
+Quitter par l'icône de la zone de notification (**clic droit → Quitter**).
+Quelques secondes plus tard, il ne doit rester **ni** `FreeFlow.exe` **ni**
+`freeflow-stt.exe` :
+
+```powershell
+Get-Process FreeFlow, freeflow-stt -ErrorAction SilentlyContinue
+# aucun résultat attendu
+```
+
+Cette version le garantit, y compris quand aucune de nos lignes de code ne peut
+s'exécuter (fenêtre tuée, console fermée, plantage) : un garde-fou détaché attend
+la disparition du programme puis arrête ce qui reste du moteur. Un
+`freeflow-stt.exe` oublié garde ~700 Mo de mémoire **et** le port `48123`, ce qui
+gêne le démarrage suivant. S'il en reste un (ancienne version, arrêt brutal) :
+
+```cmd
+taskkill /IM FreeFlow.exe /T /F
+taskkill /IM freeflow-stt.exe /F
+```
+
 ---
 
 ## Ce que fabrique ce dépôt
@@ -151,6 +173,24 @@ et redirige la valeur par défaut de `modelCache` vers `<dossier>\data\models`.
 `fs.mkdirSync` est indispensable : `app.setPath('userData', …)` lève une exception
 si le dossier n'existe pas, et l'application reste bloquée sur une boîte de
 dialogue sans écrire de journal.
+
+### Le second correctif : aucun processus fantôme
+
+`tools/patch-quit.js` corrige une fuite réelle de l'application d'origine sous
+Windows. FreeFlow arrête bien son moteur lors d'une fermeture normale, mais si
+Electron meurt autrement, le moteur (`freeflow-stt.exe`, ~700 Mo, port `48123`)
+reste en vie ; la **fermeture propre ne peut pas lui être demandée** par ce
+build, car Windows protège la variable qui détient le jeton contre toute lecture
+par un autre processus. Le patch ajoute donc, dans cet ordre :
+
+1. `lib/sidecar.js` → `stopAll()` : à la sortie, tuer l'arbre du moteur, ce qui
+   écoute sur le bloc de ports et tout binaire du moteur vivant sous
+   `<dossier>\resources\` ;
+2. `main.js` → `quitApp()` appelle `stopAll()` au lieu de `stop()` ;
+3. `lib/-kill-engine.ps1` : un garde-fou détaché qui attend la disparition du
+   programme puis tue ce qui reste du moteur — y compris quand plus aucune de nos
+   lignes de code ne s'exécute (fenêtre tuée, console fermée, plantage), avec une
+   trace `[quit guard]` dans `data\logs\freeflow.log`.
 
 ### Pourquoi 904 Mio et pas 6,3 Go
 
@@ -197,5 +237,6 @@ fichier douteux. Le correctif produit ici a été vérifié **octet pour octet**
 | [INSTALLER.md](INSTALLER.md) | mode d'emploi complet de la version portable |
 | [docs/DEPANNAGE.md](docs/DEPANNAGE.md) | les pannes réelles rencontrées, cause et réparation |
 | `build-portable.ps1` | fabrique le dossier portable depuis l'installation officielle |
-| `tools/patch-main.js` | applique le correctif à `main.js` (idempotent, codes d'erreur explicites) |
-| `portable\` | lanceurs, notice et `portable.txt` copiés dans le dossier produit |
+| `tools/patch-main.js` | applique le correctif portable à `main.js` (idempotent, codes d'erreur explicites) |
+| `tools/patch-quit.js` | arrêt complet : `stopAll()`, `quitApp()` et garde-fou de sortie |
+| `portable\` | lanceurs, notice, `portable.txt` et `lib\-kill-engine.ps1` copiés dans le dossier produit |
