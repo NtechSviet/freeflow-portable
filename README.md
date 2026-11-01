@@ -1,107 +1,134 @@
 # FreeFlow Portable (Windows)
 
-FreeFlow dans un **dossier autonome, sans installation** : le programme, votre
-profil (réglages, dictionnaire, historique, réunions) et le modèle vocal vivent
-dans un seul dossier déplaçable. Rien dans `%APPDATA%`, rien dans le registre.
+**FreeFlow, mais en version portable : un seul dossier, zéro installation.**
 
-> ### ⬇ [Télécharger FreeFlow Portable 1.2.0 (Windows x64, 904 Mio)](https://github.com/NtechSviet/freeflow-portable/releases/latest)
->
-> Archive `.7z` → extraire → double-clic sur `Lancer FreeFlow.cmd`.
-> Guide pas à pas (télécharger, extraire, lancer, désinstaller) :
-> **[INSTALLER.md](INSTALLER.md)**.
+Le programme, votre profil (réglages, dictionnaire, historique, réunions) et le
+modèle vocal vivent dans le même dossier, qui se déplace, se copie sur une clé
+USB et se supprime sans laisser de trace. Rien dans `%APPDATA%`, rien dans le
+registre, aucun droit administrateur.
 
-## Installation en 3 étapes
+<p align="center">
+  <a href="https://github.com/NtechSviet/freeflow-portable/releases/latest">
+    <img alt="Télécharger FreeFlow Portable 1.2.0 pour Windows x64" src="https://img.shields.io/badge/%E2%AC%87_T%C3%A9l%C3%A9charger-FreeFlow_Portable_1.2.0_%E2%80%94_Windows_x64-2ea44f?style=for-the-badge&logo=windows&logoColor=white">
+  </a>
+</p>
 
-1. **Télécharger** `FreeFlow-Portable-1.2.0-win-x64.7z` dans les
-   [Releases](https://github.com/NtechSviet/freeflow-portable/releases/latest)
-   (section « Assets »).
-2. **Extraire** avec [7-Zip](https://www.7-zip.org) : clic droit → 7-Zip →
-   *Extraire vers « FreeFlow-Portable\ »*. Ne pas extraire dans `C:\Program Files`.
-3. **Lancer** `Lancer FreeFlow.cmd` (ou `Creer le raccourci.cmd` pour une icône).
-   `Ctrl+Alt+Espace` dicte, `Ctrl+Alt+H` ouvre le panneau.
-
-Au premier démarrage, FreeFlow télécharge le modèle `large-v3` (~3 Go avec GPU
-NVIDIA, ~0,5 Go en CPU) dans `data\models` ; ensuite tout fonctionne hors ligne.
-Le détail (place disque, déplacement du dossier, désinstallation, dépannage) est
-dans **[INSTALLER.md](INSTALLER.md)**.
-
-Contenu de l'archive :
-
-```
-Lancer FreeFlow.cmd        lanceur (fonctionne tel quel, quel que soit l'emplacement)
-Creer le raccourci.cmd     crée "FreeFlow Portable.lnk" (icône FreeFlow)
-Diagnostic.cmd             démarrage manuel + journal complet si ça ne part pas
-Reparer-Etiquettes.cmd     répare l'étiquette d'intégrité du dossier (voir Dépannage)
-LISEZ-MOI.txt              la même notice, lisible sans éditeur
-portable.txt               marqueur qui active le mode portable
-FreeFlow.exe, resources\   l'application
-data\                      votre profil + data\models\ (créé au 1er lancement)
-```
+<p align="center">
+  <img alt="Licence MIT" src="https://img.shields.io/badge/licence-MIT-blue">
+  <img alt="Windows 10 et 11 x64" src="https://img.shields.io/badge/Windows-10_%2F_11_x64-0078D4">
+  <img alt="Sans installation" src="https://img.shields.io/badge/installation-aucune-success">
+  <img alt="FreeFlow 1.2.0" src="https://img.shields.io/badge/FreeFlow-1.2.0-lightgrey">
+</p>
 
 ---
 
-## Ce dépôt contient aussi le kit de fabrication
+## Ce n'est pas quoi, et c'est quoi
 
-Le dépôt Git ne contient pas les binaires (GitHub refuse les fichiers de plus de
-100 Mo) : il contient les scripts, le correctif et la notice, plus l'archive
-publiée en Release. Pour reproduire soi-même le dossier depuis l'installation
-officielle, suivre la section suivante.
+| | <nobr>FreeFlow officiel</nobr> | <nobr>FreeFlow Portable (ce dépôt)</nobr> |
+|---|---|---|
+| Installation | installateur `.exe` | **aucune** : on extrait une archive et on lance |
+| Où vont les réglages | `%APPDATA%\FreeFlow` | **dans le dossier**, `data\` |
+| Où va le modèle vocal | `%APPDATA%\…\models` | **dans le dossier**, `data\models\` |
+| Déplacer vers un autre PC / une clé USB | non | **oui : copier le dossier** |
+| Désinstaller | panneau *Applications* | **supprimer le dossier** |
+| Accès administrateur | à l'installation | **jamais** |
+| Version Mac | oui | non (Windows x64 uniquement) |
 
-## Prérequis pour compiler soi-même
+La dictée est exactement la même : `Ctrl+Alt+Espace`, `large-v3` en local, rien qui
+quitte l'ordinateur. Seule la façon de ranger les fichiers change.
 
-- Windows 10/11 x64
-- [Node.js](https://nodejs.org) 18+ (fournit `node`, `npx`)
-- FreeFlow **1.2.0** installé une fois (l'installeur officiel sert de source) —
-  `%LOCALAPPDATA%\Programs\FreeFlow` par défaut
-- ~7 Go d'espace libre à destination
+---
 
-## Compiler
+## Installer (3 étapes)
+
+> ### 1. Télécharger
+> Cliquez sur **[⬇ Télécharger](https://github.com/NtechSviet/freeflow-portable/releases/latest)**
+> puis, dans la section *Assets*, sur `FreeFlow-Portable-1.2.0-win-x64.7z` **(904 Mio)**.
+> C'est le seul fichier nécessaire — les liens « Source code » ne sont pas l'application.
+>
+> ### 2. Extraire
+> Avec [7-Zip](https://www.7-zip.org) : **clic droit sur le `.7z` → 7-Zip →
+> Extraire vers « FreeFlow-Portable\ »**. Un dossier simple, par exemple
+> `C:\Users\<vous>\Desktop\FreeFlow-Portable` — **pas** `C:\Program Files`.
+>
+> ### 3. Lancer
+> Double-clic sur **`Lancer FreeFlow.cmd`** dans le dossier extrait.
+> Pour une icône dans le dossier : une fois `Creer le raccourci.cmd`.
+
+Détails (place disque, SmartScreen, dossier créé par la première exécution,
+gestion du modèle, désinstallation) : **[INSTALLER.md](INSTALLER.md)**.
+
+Au premier démarrage, FreeFlow télécharge le modèle `large-v3` (~3 Go avec une
+carte NVIDIA, ~0,5 Go en CPU) **dans `data\models`** ; ensuite tout fonctionne
+hors ligne.
+
+![Ce que change le mode portable : version classique, trois emplacements à gérer ; version portable, un seul dossier à copier ou à supprimer](docs/mode-portable.svg)
+
+---
+
+## Utilisation
+
+| Raccourci | Effet |
+|---|---|
+| `Ctrl + Alt + Espace` | dicter — appuyer, parler, ré-appuyer |
+| `Ctrl + Alt + H` | panneau : réglages, dictionnaire, historique |
+
+Une icône apparaît près de l'horloge. Le texte s'écrit à l'endroit où se trouve
+le curseur, dans n'importe quelle application.
+
+## Vérifier que le mode portable est bien actif
+
+Après la première exécution, le dossier contient :
+
+```
+FreeFlow-Portable\
+├─ FreeFlow.exe
+├─ Lancer FreeFlow.cmd
+├─ portable.txt          <-- marqueur du mode portable
+└─ data\
+   ├─ settings.json      <-- vous êtes ici (et non dans %APPDATA%)
+   ├─ logs\freeflow.log
+   └─ models\            <-- le modèle vocal
+```
+
+C'est la présence de `portable.txt` à côté de `FreeFlow.exe` qui redirige le
+profil vers `data\`. Si `data\` n'apparaît pas, l'application n'a pas démarré :
+voir le [dépannage](docs/DEPANNAGE.md).
+
+## Si ça ne marche pas
+
+| Symptôme | Solution |
+|---|---|
+| Le texte s'affiche mais ne s'écrit dans aucune application | double-clic sur `Reparer-Etiquettes.cmd`, puis quitter et relancer |
+| Double-clic sans effet, fermeture immédiate | double-clic sur `Diagnostic.cmd` → il écrit `journal-demarrage.txt` |
+| Windows demande un mot de passe administrateur | le dossier est dans `C:\Program Files` : le déplacer |
+| Raccourci global inactif | une autre instance de FreeFlow tourne déjà (installation classique et portable sont deux applications distinctes) |
+
+**Ne jamais lancer FreeFlow en tant qu'administrateur** : Windows empêche alors
+l'application de taper dans les fenêtres normales. Tous les cas connus, avec
+leurs causes, sont expliqués dans **[docs/DEPANNAGE.md](docs/DEPANNAGE.md)**
+(étiquette d'intégrité « faible », `--no-sandbox`, UIPI…).
+
+---
+
+## Ce que fabrique ce dépôt
+
+Ce dépôt contient **l'archive prête à l'emploi** (en [Releases](https://github.com/NtechSviet/freeflow-portable/releases))
+**et le kit** qui la fabrique à partir de l'installation officielle. Les binaires
+ne sont pas versionnés : GitHub refuse les fichiers de plus de 100 Mo.
 
 ```powershell
-git clone https://github.com/<vous>/freeflow-portable.git
+git clone https://github.com/NtechSviet/freeflow-portable.git
 cd freeflow-portable
-
-# source = installation officielle ; destination = dossier portable à créer
 powershell -ExecutionPolicy Bypass -File .\build-portable.ps1 -Destination "D:\FreeFlow-Portable"
 ```
 
-Le script enchaîne :
+Prérequis : Windows 10/11 x64, [Node.js](https://nodejs.org) 18+, FreeFlow 1.2.0
+installé une fois (l'installateur officiel sert de source), ~7 Go libres.
+Le script copie le runtime, extrait `resources\app.asar`, applique le correctif,
+copie les lanceurs, remet l'étiquette d'intégrité à « moyen » et crée le raccourci.
 
-1. copie du runtime Electron (hors `resources\app.asar`) ;
-2. extraction de `resources\app.asar` → `resources\app` (`@electron/asar`) ;
-3. fusion de `resources\app.asar.unpacked` (modules natifs `uiohook-napi`) ;
-4. correctif `tools\patch-main.js` : `userData` → `<dossier>\data`, `modelCache`
-   → `<dossier>\data\models`, puis `node --check` ;
-5. suppression de l'archive d'origine (FreeFlow charge `resources\app\` s'il
-   existe) ;
-6. copie des lanceurs, de `portable.txt`, création de `data\` ;
-7. **remise des étiquettes d'intégrité à « Niveau moyen »** (indispensable, voir
-   [docs/DEPANNAGE.md](docs/DEPANNAGE.md)) ;
-8. création du raccourci `FreeFlow Portable.lnk`.
-
-L'archive publiée en Release est fabriquée exactement de cette façon, puis
-extraite sans `data\` ni `.lnk` (chemin absolu) :
-
-```powershell
-7z a -t7z -mx=7 -md=128m -mfb=128 -ms=on -mmt=on FreeFlow-Portable-1.2.0-win-x64.7z .\*
-```
-
-## Ce qui n'est pas dans Git (et pourquoi)
-
-La version portable complète pèse **6,26 Go** :
-
-| Élément | Taille | GitHub |
-|---|---|---|
-| `data\models\` (large-v3) | 4,13 Go | dépasse la limite de **2 Go par fichier joint** |
-| `resources\freeflow-stt\` (moteur faster-whisper/CUDA) | ~1,5 Go | idem |
-| `FreeFlow.exe` | 247 Mo | idem |
-
-C'est pour cela que l'archive livrée fait 904 Mio : elle s'arrête au modèle, que
-FreeFlow télécharge lui-même au premier démarrage — exactement comme
-l'installeur officiel de l'auteur. GitHub accepte, en pièce jointe d'une Release,
-un fichier de 904 Mio mais pas de 4,13 Go.
-
-## Le correctif, en clair
+### Le correctif, en clair
 
 `resources\app\main.js` ne connaît pas le mode portable : Electron écrit dans
 `%APPDATA%`. Le patch ajoute, juste après le `require('child_process')` :
@@ -121,18 +148,24 @@ try {
 ```
 
 et redirige la valeur par défaut de `modelCache` vers `<dossier>\data\models`.
-`fs.mkdirSync` est nécessaire : `app.setPath('userData', …)` lève une exception si
-le dossier n'existe pas, et l'application reste alors bloquée sur une boîte de
+`fs.mkdirSync` est indispensable : `app.setPath('userData', …)` lève une exception
+si le dossier n'existe pas, et l'application reste bloquée sur une boîte de
 dialogue sans écrire de journal.
 
-## Dépannage
+### Pourquoi 904 Mio et pas 6,3 Go
 
-Le piège principal n'est pas le patch mais **l'étiquette d'intégrité du dossier**.
-Symptômes, diagnostic et réparation : [docs/DEPANNAGE.md](docs/DEPANNAGE.md).
+| Élément | Taille | Dans l'archive ? |
+|---|---|---|
+| Application + runtime Electron + lanceurs | ~1,0 Go | oui |
+| `resources\freeflow-stt\` (moteur faster-whisper/CUDA) | ~1,5 Go | oui |
+| `data\models\` (large-v3) | 4,13 Go | **non** — téléchargé au 1er démarrage |
+| Votre profil (`data\`) | — | **non**, jamais |
 
-En résumé : si la dictée s'affiche mais ne s'écrit pas dans les autres
-applications (Bloc-notes, Chrome/Electron, Word…), ou si l'application se ferme
-immédiatement au démarrage, exécutez `Reparer-Etiquettes.cmd` puis relancez.
+Un fichier joint à une Release est limité à 2 Go sur GitHub : le modèle ne peut
+pas y tenir. Il est donc téléchargé par FreeFlow lui-même au premier lancement —
+exactement comme le fait l'installateur officiel de l'auteur.
+
+---
 
 ## Versions testées
 
@@ -150,8 +183,19 @@ fichier douteux. Le correctif produit ici a été vérifié **octet pour octet**
 
 ## Licence et crédits
 
-- FreeFlow : © Alan — <https://github.com/AlanECE/freeflow> (licence MIT). Ce
-  dépôt n'est pas affilié à l'auteur. L'archive d'une Release redistribue
-  l'application et son moteur ; garder `LICENSE`, `LICENSES.chromium.html` et
-  `THIRD_PARTY_NOTICES.md` d'origine, et voir la licence de FreeFlow.
-- Scripts, notice et correctif de ce dépôt : MIT, voir [LICENSE](LICENSE).
+- **FreeFlow** : © Alan — <https://github.com/AlanECE/freeflow> (licence MIT).
+  Ce dépôt n'est pas affilié à l'auteur. L'archive d'une Release redistribue
+  l'application et son moteur ; `LICENSE`, `LICENSES.chromium.html` et
+  `THIRD_PARTY_NOTICES.md` d'origine y sont conservés. Si elle vous est utile,
+  allez mettre une étoile au projet d'origine.
+- **Scripts, notices et correctif de ce dépôt** : MIT, voir [LICENSE](LICENSE).
+
+## Sommaire des fichiers
+
+| Fichier | Rôle |
+|---|---|
+| [INSTALLER.md](INSTALLER.md) | mode d'emploi complet de la version portable |
+| [docs/DEPANNAGE.md](docs/DEPANNAGE.md) | les pannes réelles rencontrées, cause et réparation |
+| `build-portable.ps1` | fabrique le dossier portable depuis l'installation officielle |
+| `tools/patch-main.js` | applique le correctif à `main.js` (idempotent, codes d'erreur explicites) |
+| `portable\` | lanceurs, notice et `portable.txt` copiés dans le dossier produit |

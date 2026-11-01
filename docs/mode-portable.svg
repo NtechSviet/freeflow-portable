@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="380" viewBox="0 0 900 380" role="img" aria-labelledby="t d">
+  <title id="t">Ce que change le mode portable</title>
+  <desc id="d">À gauche, l'installation classique répartit le programme dans Program Files et les données dans AppData. À droite, la version portable garde tout — programme, réglages et modèle vocal — dans un seul dossier déplaçable.</desc>
+
+  <style>
+    .bg      { fill: #ffffff; }
+    .frame   { fill: none; stroke-width: 1.5; }
+    .dash    { fill: none; stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .folder  { fill: #f6f8fa; stroke-width: 1.8; }
+    .box     { fill: #ffffff; stroke-width: 1.4; }
+    .prog    { fill: #e7f0ff; stroke: #0b6bcb; }
+    .data    { fill: #fff4e5; stroke: #b25f00; }
+    .model   { fill: #e8f7ee; stroke: #1a7f37; }
+    .port    { fill: #f0fbf3; stroke: #1a7f37; stroke-width: 2; }
+    .title   { font: 700 16px "Segoe UI", system-ui, sans-serif; fill: #1f2328; }
+    .sub     { font: 400 12.5px "Segoe UI", system-ui, sans-serif; fill: #57606a; }
+    .label   { font: 600 12.5px "Segoe UI", system-ui, sans-serif; fill: #1f2328; }
+    .small   { font: 400 11.5px "Segoe UI", system-ui, sans-serif; fill: #57606a; }
+    .mono    { font: 600 12px Consolas, "Cascadia Mono", monospace; fill: #1f2328; }
+    .bad     { fill: #cf222e; font: 700 13px "Segoe UI", system-ui, sans-serif; }
+    .good    { fill: #1a7f37; font: 700 13px "Segoe UI", system-ui, sans-serif; }
+    .arrow   { stroke: #8c959f; stroke-width: 1.6; fill: none; }
+    .note    { font: 400 12px "Segoe UI", system-ui, sans-serif; fill: #57606a; }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="900" height="380" rx="10"/>
+
+  <!-- ================= colonne gauche : installation classique ================= -->
+  <text class="title" x="40" y="40">Version classique</text>
+  <text class="sub"   x="40" y="60">installateur · fichiers dispersés</text>
+
+  <!-- Program Files -->
+  <rect class="folder" x="40" y="80" width="320" height="92" rx="8"/>
+  <text class="mono"   x="58" y="104">C:\Program Files\FreeFlow\</text>
+  <rect class="box prog" x="58" y="114" width="120" height="40" rx="5"/>
+  <text class="label"  x="118" y="132" text-anchor="middle">programme</text>
+  <text class="small"  x="118" y="147" text-anchor="middle">FreeFlow.exe</text>
+  <rect class="box prog" x="188" y="114" width="150" height="40" rx="5"/>
+  <text class="label"  x="263" y="132" text-anchor="middle">moteur vocal</text>
+  <text class="small"  x="263" y="147" text-anchor="middle">freeflow-stt.exe</text>
+
+  <!-- AppData -->
+  <rect class="folder" x="40" y="196" width="320" height="128" rx="8"/>
+  <text class="mono"   x="58" y="220">C:\Users\&lt;vous&gt;\AppData\Roaming\FreeFlow\</text>
+  <rect class="box data" x="58" y="230" width="140" height="46" rx="5"/>
+  <text class="label"  x="128" y="250" text-anchor="middle">réglages</text>
+  <text class="small"  x="128" y="265" text-anchor="middle">dictionnaire, historique</text>
+  <rect class="box model" x="208" y="230" width="134" height="46" rx="5"/>
+  <text class="label"  x="275" y="250" text-anchor="middle">modèle large-v3</text>
+  <text class="small"  x="275" y="265" text-anchor="middle">4,13 Go</text>
+  <text class="note"   x="58" y="299">Effacer le profil = perdre le moteur,</text>
+  <text class="note"   x="58" y="314">les réglages et le téléchargement.</text>
+
+  <text class="bad" x="40" y="352">3 emplacements à gérer, à sauvegarder, à oublier.</text>
+
+  <!-- ================= flèche centrale ================= -->
+  <path class="arrow" d="M 392 190 H 452" marker-end="none"/>
+  <path class="arrow" d="M 446 185 L 454 190 L 446 195 Z" fill="#8c959f"/>
+
+  <!-- ================= colonne droite : portable ================= -->
+  <text class="title" x="480" y="40">Version portable</text>
+  <text class="sub"   x="480" y="60">archive extraite · un seul dossier</text>
+
+  <rect class="folder port" x="480" y="80" width="380" height="244" rx="10"/>
+  <text class="mono"  x="498" y="106">C:\Un dossier\FreeFlow-Portable\</text>
+  <text class="small" x="498" y="122">(Bureau, clé USB, n'importe quel disque)</text>
+
+  <rect class="box prog" x="498" y="134" width="164" height="42" rx="5"/>
+  <text class="label"  x="580" y="152" text-anchor="middle">programme</text>
+  <text class="small"  x="580" y="167" text-anchor="middle">FreeFlow.exe · lanceurs</text>
+  <rect class="box prog" x="676" y="134" width="166" height="42" rx="5"/>
+  <text class="label"  x="759" y="152" text-anchor="middle">moteur vocal</text>
+  <text class="small"  x="759" y="167" text-anchor="middle">resources\freeflow-stt\</text>
+
+  <rect class="folder" x="498" y="188" width="344" height="118" rx="8" style="fill:#fbfcfd"/>
+  <text class="mono"  x="514" y="210">data\</text>
+  <text class="small" x="556" y="210">votre profil — suit le dossier</text>
+  <rect class="box data" x="514" y="220" width="140" height="40" rx="5"/>
+  <text class="label"  x="584" y="238" text-anchor="middle">réglages</text>
+  <text class="small"  x="584" y="252" text-anchor="middle">dictionnaire, historique</text>
+  <rect class="box model" x="666" y="220" width="160" height="40" rx="5"/>
+  <text class="label"  x="746" y="238" text-anchor="middle">modèle large-v3</text>
+  <text class="small"  x="746" y="252" text-anchor="middle">data\models\</text>
+  <text class="note"   x="514" y="284">Déplacer ou supprimer le dossier, c'est tout :</text>
+  <text class="note"   x="514" y="299">rien n'est écrit dans %APPDATA%, rien dans le registre.</text>
+  <text class="good" x="480" y="352">1 dossier à copier, 1 dossier à supprimer.</text>
+
+  <text class="note" x="40" y="372">Même application, même modèle, même raccourci Ctrl+Alt+Espace. Seul le rangement change.</text>
+</svg>
