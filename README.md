@@ -1,45 +1,53 @@
 # FreeFlow Portable (Windows)
 
-Fabrique un dossier **FreeFlow autonome, sans installation** : le programme, son
+FreeFlow dans un **dossier autonome, sans installation** : le programme, votre
 profil (réglages, dictionnaire, historique, réunions) et le modèle vocal vivent
-dans un seul dossier déplaçable. Aucun fichier n'est écrit dans `%APPDATA%`.
+dans un seul dossier déplaçable. Rien dans `%APPDATA%`, rien dans le registre.
 
-Ce dépôt contient **le kit de fabrication** (scripts + correctif + notice), pas
-les binaires — voir « Ce qui n'est pas ici » plus bas.
+> ### ⬇ [Télécharger FreeFlow Portable 1.2.0 (Windows x64, 904 Mio)](https://github.com/NtechSviet/freeflow-portable/releases/latest)
+>
+> Archive `.7z` → extraire → double-clic sur `Lancer FreeFlow.cmd`.
+> Guide pas à pas (télécharger, extraire, lancer, désinstaller) :
+> **[INSTALLER.md](INSTALLER.md)**.
 
-**Version prête à l'emploi** : l'archive du dossier portable (Windows x64, sans le
-modèle vocal, qui se télécharge au premier démarrage) est publiée dans les
-[Releases](https://github.com/NtechSviet/freeflow-portable/releases/latest).
+## Installation en 3 étapes
+
+1. **Télécharger** `FreeFlow-Portable-1.2.0-win-x64.7z` dans les
+   [Releases](https://github.com/NtechSviet/freeflow-portable/releases/latest)
+   (section « Assets »).
+2. **Extraire** avec [7-Zip](https://www.7-zip.org) : clic droit → 7-Zip →
+   *Extraire vers « FreeFlow-Portable\ »*. Ne pas extraire dans `C:\Program Files`.
+3. **Lancer** `Lancer FreeFlow.cmd` (ou `Creer le raccourci.cmd` pour une icône).
+   `Ctrl+Alt+Espace` dicte, `Ctrl+Alt+H` ouvre le panneau.
+
+Au premier démarrage, FreeFlow télécharge le modèle `large-v3` (~3 Go avec GPU
+NVIDIA, ~0,5 Go en CPU) dans `data\models` ; ensuite tout fonctionne hors ligne.
+Le détail (place disque, déplacement du dossier, désinstallation, dépannage) est
+dans **[INSTALLER.md](INSTALLER.md)**.
+
+Contenu de l'archive :
 
 ```
-FreeFlow Portable.lnk      lanceur (icône FreeFlow)
-Lancer FreeFlow.cmd        lanceur texte (même chose, sans raccourci)
-Creer le raccourci.cmd     recrée le raccourci si le dossier a été déplacé
+Lancer FreeFlow.cmd        lanceur (fonctionne tel quel, quel que soit l'emplacement)
+Creer le raccourci.cmd     crée "FreeFlow Portable.lnk" (icône FreeFlow)
 Diagnostic.cmd             démarrage manuel + journal complet si ça ne part pas
 Reparer-Etiquettes.cmd     répare l'étiquette d'intégrité du dossier (voir Dépannage)
-LISEZ-MOI.txt              notice pour l'utilisateur final
+LISEZ-MOI.txt              la même notice, lisible sans éditeur
 portable.txt               marqueur qui active le mode portable
-data\                      profil + data\models\ (modèle large-v3)
+FreeFlow.exe, resources\   l'application
+data\                      votre profil + data\models\ (créé au 1er lancement)
 ```
 
-## Ce qui n'est pas ici (et pourquoi)
+---
 
-La version portable d'origine pèse **6,26 Go** :
+## Ce dépôt contient aussi le kit de fabrication
 
-| Élément | Taille | GitHub |
-|---|---|---|
-| `resources\freeflow-stt\` (moteur faster-whisper/CUDA) | ~1,5 Go | dépasse la limite de 100 Mo **par fichier** |
-| `data\models\` (large-v3) | 4,13 Go | idem |
-| `FreeFlow.exe` | 247 Mo | idem |
+Le dépôt Git ne contient pas les binaires (GitHub refuse les fichiers de plus de
+100 Mo) : il contient les scripts, le correctif et la notice, plus l'archive
+publiée en Release. Pour reproduire soi-même le dossier depuis l'installation
+officielle, suivre la section suivante.
 
-GitHub refuse tout fichier de plus de 100 Mo (et un dépôt au-delà de ~1 Go devient
-inutilisable). Le modèle est de toute façon téléchargé automatiquement au premier
-démarrage. Ce dépôt fournit donc **la recette reproductible** : on part de
-l'installation officielle (MIT) et on la transforme en version portable en une
-commande. Résultat identique, quelques minutes de calcul et un `git clone` de
-quelques kilo-octets.
-
-## Prérequis
+## Prérequis pour compiler soi-même
 
 - Windows 10/11 x64
 - [Node.js](https://nodejs.org) 18+ (fournit `node`, `npx`)
@@ -47,15 +55,14 @@ quelques kilo-octets.
   `%LOCALAPPDATA%\Programs\FreeFlow` par défaut
 - ~7 Go d'espace libre à destination
 
-## Utilisation
+## Compiler
 
 ```powershell
 git clone https://github.com/<vous>/freeflow-portable.git
 cd freeflow-portable
 
 # source = installation officielle ; destination = dossier portable à créer
-powershell -ExecutionPolicy Bypass -File .\build-portable.ps1 `
-    -Destination "D:\FreeFlow-Portable"
+powershell -ExecutionPolicy Bypass -File .\build-portable.ps1 -Destination "D:\FreeFlow-Portable"
 ```
 
 Le script enchaîne :
@@ -72,20 +79,27 @@ Le script enchaîne :
    [docs/DEPANNAGE.md](docs/DEPANNAGE.md)) ;
 8. création du raccourci `FreeFlow Portable.lnk`.
 
-Puis : double-clic sur `FreeFlow Portable.lnk`. `Ctrl+Alt+Espace` dicte,
-`Ctrl+Alt+H` ouvre le panneau.
+L'archive publiée en Release est fabriquée exactement de cette façon, puis
+extraite sans `data\` ni `.lnk` (chemin absolu) :
 
-### Déplacer / réinstaller
+```powershell
+7z a -t7z -mx=7 -md=128m -mfb=128 -ms=on -mmt=on FreeFlow-Portable-1.2.0-win-x64.7z .\*
+```
 
-Le dossier est autonome : coupez FreeFlow, déplacez-le, relancez le raccourci
-(recréez-le si le chemin change : `Lancer FreeFlow.cmd` utilise `%~dp0` et suit
-le dossier tout seul).
+## Ce qui n'est pas dans Git (et pourquoi)
 
-### Le modèle vocal
+La version portable complète pèse **6,26 Go** :
 
-Au premier démarrage, FreeFlow télécharge `large-v3` (~4,2 Go) dans
-`data\models` (cache Hugging Face). Pour éviter le téléchargement, copiez le
-dossier `models` d'une autre installation, application fermée.
+| Élément | Taille | GitHub |
+|---|---|---|
+| `data\models\` (large-v3) | 4,13 Go | dépasse la limite de **2 Go par fichier joint** |
+| `resources\freeflow-stt\` (moteur faster-whisper/CUDA) | ~1,5 Go | idem |
+| `FreeFlow.exe` | 247 Mo | idem |
+
+C'est pour cela que l'archive livrée fait 904 Mio : elle s'arrête au modèle, que
+FreeFlow télécharge lui-même au premier démarrage — exactement comme
+l'installeur officiel de l'auteur. GitHub accepte, en pièce jointe d'une Release,
+un fichier de 904 Mio mais pas de 4,13 Go.
 
 ## Le correctif, en clair
 
@@ -137,7 +151,7 @@ fichier douteux. Le correctif produit ici a été vérifié **octet pour octet**
 ## Licence et crédits
 
 - FreeFlow : © Alan — <https://github.com/AlanECE/freeflow> (licence MIT). Ce
-  dépôt n'est pas affilié à l'auteur ; il ne redistribue aucun binaire.
+  dépôt n'est pas affilié à l'auteur. L'archive d'une Release redistribue
+  l'application et son moteur ; garder `LICENSE`, `LICENSES.chromium.html` et
+  `THIRD_PARTY_NOTICES.md` d'origine, et voir la licence de FreeFlow.
 - Scripts, notice et correctif de ce dépôt : MIT, voir [LICENSE](LICENSE).
-- Le dossier produit conserve `LICENSE`, `LICENSES.chromium.html` et
-  `THIRD_PARTY_NOTICES.md` d'origine : ne les supprimez pas si vous redistribuez.

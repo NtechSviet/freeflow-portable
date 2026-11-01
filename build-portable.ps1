@@ -103,7 +103,12 @@ if (Test-Path -LiteralPath (Join-Path $Destination 'resources\app.asar.unpacked'
 
 # ------------------------------------------------------------ 3. fichiers portables
 Write-Step 'Lanceurs, notice et marqueur portable.txt'
-Copy-Item -Path (Join-Path $PSScriptRoot 'portable\*') -Destination $Destination -Force
+# Les .cmd/.txt doivent garder des fins de ligne CRLF : un fichier LF seul fait
+# afficher les commentaires "rem" comme des commandes par cmd.exe.
+Get-ChildItem -LiteralPath (Join-Path $PSScriptRoot 'portable') -File | ForEach-Object {
+    $text = [IO.File]::ReadAllText($_.FullName) -replace "`r`n", "`n" -replace "`n", "`r`n"
+    [IO.File]::WriteAllText((Join-Path $Destination $_.Name), $text, (New-Object Text.UTF8Encoding($false)))
+}
 New-Item -ItemType Directory -Force -Path (Join-Path $Destination 'data') | Out-Null
 
 # ------------------------------------------------------------- 4. etiquettes SACL

@@ -1,34 +1,73 @@
 FreeFlow 1.2.0 - version portable (Windows x64)
 ===============================================
 
-Aucune installation. Tout tient dans ce dossier, y compris votre profil,
-vos reglages, votre dictionnaire/historique et le modele vocal.
+Aucune installation. Tout tient dans ce dossier, y compris votre profil, vos
+reglages, votre dictionnaire/historique et le modele vocal.
 
-DEMARRER
---------
-1) Double-cliquez sur  "FreeFlow Portable"  (raccourci dans ce dossier),
-   ou sur "Lancer FreeFlow.cmd", ou directement sur FreeFlow.exe : les trois
-   fonctionnent.
-2) L'icone apparait dans la zone de notification ; raccourcis :
-   Ctrl + Alt + Espace  -> dicter
-   Ctrl + Alt + H       -> panneau / hub (reglages, dictionnaire, historique)
 
+CE QUE VOUS DEVEZ FAIRE (3 ETAPES)
+----------------------------------
+1) TELECHARGER  FreeFlow-Portable-1.2.0-win-x64.7z  (904 Mo) ici :
+      https://github.com/NtechSviet/freeflow-portable/releases/latest
+   (section "Assets" en bas de la version ; les liens "Source code" ne sont
+   PAS l'application.)
+
+2) EXTRAIRE l'archive avec 7-Zip (https://www.7-zip.org) :
+      clic droit sur le fichier .7z
+      > 7-Zip
+      > Extraire vers "FreeFlow-Portable\"
+   Choisir un dossier simple, par exemple :
+      C:\Users\<vous>\Desktop\FreeFlow-Portable
+   NE PAS extraire dans C:\Program Files (droits administrateur inutiles).
+   Place necessaire : 2,1 Go pour l'archive + 6,4 Go une fois extrait, plus
+   ~0,5 a 3 Go pour le modele vocal au premier demarrage.
+   Sans 7-Zip, Windows refuse souvent d'ouvrir un .7z : c'est normal, ce n'est
+   pas l'application qui est cassee.
+
+3) DEMARRER : double-cliquez sur  "Lancer FreeFlow.cmd"  (dans le dossier
+   extrait). Le fichier "FreeFlow Portable.lnk" n'est pas livre dans l'archive
+   (il contient un chemin absolu) : pour avoir l'icone, double-cliquez une fois
+   sur "Creer le raccourci.cmd" - il cree le raccourci ici meme.
+
+   Windows peut afficher "Windows a protege votre ordinateur" (SmartScreen) :
+   "Informations complementaires" puis "Executer quand meme". L'archive n'est
+   pas signee, c'est l'avertissement standard.
+
+   Au premier demarrage, FreeFlow telecharge le modele vocal large-v3
+   (~3 Go avec une carte NVIDIA, ~0,5 Go en CPU) dans data\models : laisser
+   finir, une progression s'affiche. Ensuite, tout fonctionne hors ligne.
+
+
+LES RACCOURCIS
+--------------
+Ctrl + Alt + Espace  -> dicter (appuyer, parler, re-appuyer pour arreter)
+Ctrl + Alt + H       -> panneau / hub (reglages, dictionnaire, historique)
+Une icone apparait dans la zone de notification (pres de l'horloge).
+
+
+VERIFIER QUE LE MODE PORTABLE EST ACTIF
+---------------------------------------
 Le mode portable est actif parce que le fichier "portable.txt" se trouve a
 cote de FreeFlow.exe : le profil est ecrit dans .\data au lieu de
 C:\Users\<vous>\AppData. Deplacez le dossier entier et tout suit.
+
+Apres un premier lancement, vous devez voir :
+      data\settings.json       vos reglages
+      data\logs\freeflow.log   le journal
+      data\models\             le modele telecharge
+Si "data" n'apparait pas, c'est que FreeFlow n'a pas demarre : voir DEPANNAGE.
+
 
 OU SONT MES DONNEES
 -------------------
 data\                     votre profil (reglages, dictionnaire, historique,
                           notes, reunions, caches) - deplacable avec le dossier
-data\models\              le modele vocal large-v3 deja telecharge (~4,2 Go) :
-                          la dictee fonctionne hors ligne
-data\logs\freeflow.log    journal de l'application : demarrage, raccourcis,
-                          transcription, collage, erreurs (mode developpeur)
+data\models\              le modele vocal large-v3 (~4,2 Go) : hors ligne
+data\logs\freeflow.log    journal : demarrage, raccourcis, transcription,
+                          collage, erreurs (mode developpeur)
 data\settings.json        vos reglages (raccourcis, langue, etc.)
 journal-demarrage.txt     cree par Diagnostic.cmd (sortie de demarrage)
 
-Poids total du dossier : environ 6,4 Go.
 
 DEPANNAGE
 ---------
@@ -52,16 +91,17 @@ DEPANNAGE
   l'option --no-sandbox en attendant :
       FreeFlow.exe --no-sandbox
 
-- Windows affiche un avertissement (SmartScreen) au premier lancement :
-  "Informations complementaires" puis "Executer quand meme".
+- Windows demande un mot de passe administrateur : vous avez extrait le dossier
+  dans C:\Program Files. Deplacez-le ailleurs.
 - Port utilise : 48123 (moteur de transcription local, 127.0.0.1 uniquement).
 - FreeFlow n'a pas besoin des droits administrateur. S'il est lance "en
   administrateur", il ne pourra plus ecrire dans les applications normales
   (Windows bloque les frappes d'un programme administrateur vers une fenetre
   non-administrateur) : lancez-le normalement.
 
+
 DESINSTALLER
 ------------
-Supprimez ce dossier. Si vous aviez active le demarrage automatique,
-verifiez qu'aucune entree FreeFlow ne reste dans le gestionnaire de taches
-(onglet Demarrage).
+Fermez FreeFlow (icone de la zone de notification > Quitter), puis supprimez
+ce dossier. Rien n'est ecrit ailleurs : ni registre, ni %APPDATA%, ni
+demarrage automatique (sauf si vous l'avez active dans les reglages).
