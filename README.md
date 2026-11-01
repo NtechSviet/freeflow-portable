@@ -7,6 +7,10 @@ dans un seul dossier déplaçable. Aucun fichier n'est écrit dans `%APPDATA%`.
 Ce dépôt contient **le kit de fabrication** (scripts + correctif + notice), pas
 les binaires — voir « Ce qui n'est pas ici » plus bas.
 
+**Version prête à l'emploi** : l'archive du dossier portable (Windows x64, sans le
+modèle vocal, qui se télécharge au premier démarrage) est publiée dans les
+[Releases](https://github.com/NtechSviet/freeflow-portable/releases/latest).
+
 ```
 FreeFlow Portable.lnk      lanceur (icône FreeFlow)
 Lancer FreeFlow.cmd        lanceur texte (même chose, sans raccourci)
