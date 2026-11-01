@@ -1,25 +1,25 @@
 'use strict';
-// Adds "no orphan engine" to a portable FreeFlow build, in place.
+// Ajoute "aucun moteur fantome" a un build FreeFlow portable, sur place.
 //
 //   node tools/patch-quit.js <chemin>\resources\app
 //
-// FreeFlow does stop its transcription engine on a normal quit, but on Windows
-// the engine survives when Electron dies otherwise (crash, console window
-// closed, "End task", session shutdown). The next launch then adopts that
-// orphan instead of starting a fresh engine, and the leftover keeps ~700 MB
-// and a renderer tree alive. This patch adds three layers, in order:
+// FreeFlow arrete son moteur a l'arret normal, mais sous Windows le moteur
+// survit a toute sortie anormale (plantage, fenetre tuee, console fermee,
+// arret de session). Le moteur de ce build refuse /shutdown sans son jeton, et
+// Windows protege la variable qui le contient contre la lecture par un autre
+// processus : l'arret propre est hors de portee, on tue donc. Trois couches :
 //
-//   1. lib/sidecar.js -> stopAll(): on quit, kill every engine of this folder
-//      (our tree, the engines listening on the port block, and any engine
-//      binary living under <folder>\resources\);
-//   2. main.js -> quitApp() uses stopAll() instead of stop();
-//   3. lib/-kill-engine.ps1 + a detached watchdog armed on exit: even when no
-//      code of ours runs any more, the engine is killed once we are gone.
-//      (The script name starts with "-" so PowerShell does not treat it as an
-//      operator; the quit path passes it with -File.)
+//   1. lib/sidecar.js -> stopAll() : notre arbre, ce qui ecoute sur le bloc de
+//      ports, et tout binaire du moteur sous <dossier>\resources\ ;
+//   2. main.js -> quitApp() appelle stopAll() au lieu de stop() ;
+//   3. lib/-kill-engine.ps1 + garde-fou detache a la sortie : meme quand plus
+//      aucune de nos lignes ne s'execute, le moteur est arrete.
 //
-// Idempotent. Exit codes: 0 ok/already patched, 2 usage, 3 anchor missing,
-// 4 self-check failed (nothing written), 5 write failure.
+// GENERE par tools/build-patch-quit.js depuis le build teste (stopAll et bloc
+// de sortie repris tels quels).
+//
+// Idempotent. Codes de sortie : 0 ok/deja patche, 2 usage, 3 ancre absente,
+// 4 auto-controle echoue (rien ecrit), 5 ecriture impossible.
 
 const fs = require('fs');
 const path = require('path');
@@ -43,100 +43,49 @@ function read(p, what) {
 let sidecar = read(sidecarPath, 'lib/sidecar.js');
 let main = read(mainPath, 'main.js');
 
-if (sidecar.indexOf('stopAll()') !== -1 && main.indexOf('stopAll()') !== -1) {
+if (sidecar.indexOf('async stopAll()') !== -1 && main.indexOf('sidecar.stopAll()') !== -1) {
   console.log('already patched: quit/engine cleanup');
   process.exit(0);
 }
 
-const eolOf = (s) => (s.indexOf('\r\n') !== -1 ? '\r\n' : '\n');
+// Repris tel quel du build teste (CRLF).
+const STOPALL = "/**\n   * Windows: the engine is not always ours. When Electron leaves without\n   * /shutdown (crash, console closed, \"End task\", machine rebooted), a\n   * freeflow-stt process stays on the port with the model loaded (~700 MB),\n   * and the next launch silently adopts it. On quit we therefore kill every\n   * engine of this folder (current port, next ports up, plus any process\n   * running an engine binary from this directory) and the current tree.\n   */\n  async stopAll() {\n    this.stopping = true;\n    this.killed = true;\n    clearInterval(this._poll);\n    this._poll = null;\n    if (process.platform !== 'win32' || this.external) {\n      return this.stop();                       // spawning engine / non-Windows: nothing extra\n    }\n    if (this.child && this.child.pid) {\n      const pid = this.child.pid;\n      await new Promise((r) => {\n        execFile('taskkill', ['/PID', String(pid), '/T', '/F'], { windowsHide: true }, () => r());\n        setTimeout(r, 3000);\n      });\n    }\n    const exe = this.resolveCommand();\n    const exeName = exe ? path.win32.basename(exe.cmd).toLowerCase() : '';\n    const port0 = this._port0 || this.port;\n    const ps = `\n      $found = @()\n      try {\n        Get-NetTCPConnection -State Listen -ErrorAction Stop |\n          Where-Object { $_.LocalPort -ge ${port0} -and $_.LocalPort -le ${port0 + 5} } |\n          ForEach-Object { $found += $_.OwningProcess }\n      } catch { }\n      foreach ($e in @(Get-CimInstance Win32_Process -Filter \"Name = '${exeName.replace(/'/g, \"''\")}'\" -ErrorAction SilentlyContinue)) {\n        if ($e.ExecutablePath -and (Split-Path -Parent (Split-Path -Parent $e.ExecutablePath)) -eq '${path.dirname(this.resourcesPath || '').replace(/'/g, \"''\")}') { $found += $e.ProcessId }\n      }\n      $found = $found | Sort-Object -Unique\n      foreach ($p in $found) { taskkill /PID $p /T /F 2>&1 | Out-Null }\n      if ($found.Count -gt 0) { 'killed ' + ($found -join ',') }\n    `;\n    await new Promise((r) => {\n      execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', ps], { windowsHide: true, timeout: 15000 }, (_e, out) => {\n        const line = String(out || '').trim();\n        if (line) this.log(`sidecar: stopAll ${line}`);\n        r();\n      });\n      setTimeout(r, 16000);\n    });\n    this.child = null;\n  }";
+// Meme chose pour la garde de sortie.
+const GUARD = "// Last line of defence: whatever the exit path (tray \"Quitter\", SIGTERM, renderer\n// crash), the engine must not outlive this process. Windows-only helper script:\n// it waits for our PID to disappear, then kills what is left of the engine.\nfunction guardEngine() {\n  if (process.platform !== 'win32' || !sidecar || sidecar.external) return;\n  const script = path.join(__dirname, 'lib', '-kill-engine.ps1');\n  if (!fs.existsSync(script)) return;\n  try {\n    // Le script attend la fin de ce processus, puis tue ce qui reste du moteur.\n    const c = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', script,\n      '-ParentPid', String(process.pid), '-ExeName', 'freeflow-stt.exe', '-Port', String(sidecar._port0 || sidecar.port)],\n    { detached: true, stdio: 'ignore', windowsHide: true, env: { ...process.env, FREEFLOW_PORTABLE_ROOT: path.dirname(process.execPath) } });\n    c.unref();\n    log('quit guard: watchdog armed');\n  } catch (e) { log('quit guard:', e.message); }\n}\napp.on('will-quit', guardEngine);\napp.on('render-process-gone', (_e, _wc, details) => { log('render-process-gone', details); });\nprocess.on('SIGTERM', () => { guardEngine(); quitApp(); });\nprocess.on('SIGINT', () => { guardEngine(); quitApp(); });\nprocess.on('uncaughtException', (e) => { log('uncaught:', e && e.stack ? e.stack : String(e)); guardEngine(); });";
 
-let changed = 0;
-
-// ---------------------------------------------------------------------------
-// 1. lib/sidecar.js : remember the requested port + stopAll()
-// ---------------------------------------------------------------------------
-if (sidecar.indexOf('stopAll()') === -1) {
-  const memAnchor = '    this.child = null;\n    this.external = false;      // true when we adopted an already-running server';
+// --- 1. lib/sidecar.js --------------------------------------------------------
+if (sidecar.indexOf('async stopAll()') === -1) {
+  const memAnchor = '    this.child = null;';
   if (sidecar.indexOf(memAnchor) === -1) {
-    console.error('sidecar anchor (child/external) not found');
+    console.error('sidecar anchor (this.child = null) not found');
     process.exit(3);
   }
   sidecar = sidecar.replace(memAnchor,
-    '    this.child = null;\n    this._port0 = this.port;     // requested port (stopAll walks the block)\n'
-    + '    this.external = false;      // true when we adopted an already-running server');
+    '    this.child = null;\n    this._port0 = this.port;     // port requested by the app (stopAll walks the range)');
 
-  const stopAnchor = '\n  async stop() {';
-  if (sidecar.indexOf(stopAnchor) === -1) {
+  const stopAnchor = /\n  async stop\(\) \{/;
+  if (!stopAnchor.test(sidecar)) {
     console.error('sidecar anchor (async stop) not found');
     process.exit(3);
   }
-  const stopAll = `
-  /**
-   * Windows: the engine does not always die with us. When Electron leaves
-   * without /shutdown (crash, console closed, "End task", session shutdown) a
-   * freeflow-stt process stays on the port with the model loaded (~700 MB),
-   * and the next launch silently adopts it. On quit we therefore kill every
-   * engine of this folder: our own tree, whatever listens on the port block,
-   * and any engine binary living under <folder>\\resources\\.
-   */
-  async stopAll() {
-    this.stopping = true;
-    this.killed = true;
-    clearInterval(this._poll);
-    this._poll = null;
-    if (process.platform !== 'win32' || this.external) return this.stop();
-    if (this.child && this.child.pid) {
-      const pid = this.child.pid;
-      await new Promise((r) => {
-        execFile('taskkill', ['/PID', String(pid), '/T', '/F'], { windowsHide: true }, () => r());
-        setTimeout(r, 3000);
-      });
+  // m = "\n  async stop() {": le bloc arrive sans son retrait initial
+  sidecar = sidecar.replace(stopAnchor, (m) => '\n  ' + STOPALL + m);
+
+  if (sidecar.indexOf('this.killed || this.external || !this.child') === -1) {
+    const old = '    if (this.external || !this.child) return;';
+    if (sidecar.indexOf(old) === -1) {
+      console.error('sidecar anchor (external child check) not found');
+      process.exit(3);
     }
-    const cmd = this.resolveCommand();
-    const exeName = cmd ? path.win32.basename(cmd.cmd).toLowerCase() : '';
-    const port0 = this._port0 || this.port;
-    const dir = path.dirname(this.resourcesPath || '');
-    const q = (s) => String(s).replace(/'/g, "''");
-    const ps = [
-      '$found = @()',
-      'try {',
-      '  Get-NetTCPConnection -State Listen -ErrorAction Stop |',
-      '    Where-Object { $_.LocalPort -ge ' + port0 + ' -and $_.LocalPort -le ' + (port0 + 5) + ' } |',
-      '    ForEach-Object { $found += $_.OwningProcess }',
-      '} catch { }',
-      exeName ? 'foreach ($e in @(Get-CimInstance Win32_Process -Filter "Name = \'' + q(exeName) + '\'" -ErrorAction SilentlyContinue)) {' : 'foreach ($e in @()) {',
-      '  if ($e.ExecutablePath -and (Split-Path -Parent (Split-Path -Parent $e.ExecutablePath)) -eq \'' + q(dir) + '\') { $found += $e.ProcessId }',
-      '}',
-      '$found = $found | Sort-Object -Unique',
-      'foreach ($p in $found) { taskkill /PID $p /T /F 2>&1 | Out-Null }',
-      'if ($found.Count -gt 0) { "killed " + ($found -join ",") }',
-    ].join('; ');
-    await new Promise((r) => {
-      execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', ps],
-        { windowsHide: true, timeout: 15000 }, (_e, out) => {
-          const line = String(out || '').trim();
-          if (line) this.log('sidecar: stopAll ' + line);
-          r();
-        });
-      setTimeout(r, 16000);
-    });
-    this.child = null;
+    sidecar = sidecar.replace(old,
+      '    // Our own engine was killed hard by stopAll(): the process already answers\n'
+      + '    // to nobody, so stop() only has its bookkeeping to do.\n'
+      + '    if (this.killed || this.external || !this.child) return;');
   }
-`;
-  sidecar = sidecar.replace(stopAnchor, stopAll + stopAnchor);
-  changed++;
 }
 
-if (sidecar.indexOf('if (this.killed || this.external || !this.child) return;') === -1) {
-  sidecar = sidecar.replace('    if (this.external || !this.child) return;',
-    '    // stopAll() already killed our engine: stop() only does its bookkeeping.\n'
-    + '    if (this.killed || this.external || !this.child) return;');
-}
-
-// ---------------------------------------------------------------------------
-// 2. main.js : spawn() import, stopAll() on quit, exit watchdog
-// ---------------------------------------------------------------------------
-if (main.indexOf('stopAll()') === -1) {
+// --- 2. main.js ---------------------------------------------------------------
+if (main.indexOf('sidecar.stopAll()') === -1) {
   if (main.indexOf("const { execFile } = require('child_process');") !== -1) {
     main = main.replace("const { execFile } = require('child_process');",
       "const { execFile, spawn } = require('child_process');");
@@ -146,61 +95,31 @@ if (main.indexOf('stopAll()') === -1) {
     console.error('main anchor (sidecar.stop on quit) not found');
     process.exit(3);
   }
-  main = main.replace(quitAnchor,
-    '  // Every engine of this folder, not just the one we spawned (see lib/sidecar.js).\n'
-    + '  if (sidecar) {\n'
-    + '    try { await sidecar.stopAll(); } catch (e) { log(\'sidecar stopAll:\', e.message); }\n'
-    + '  }');
+  main = main.replace(quitAnchor, [
+    '  if (sidecar) {',
+    "    try { await sidecar.stopAll(); } catch (e) { log('sidecar stopAll:', e.message); }",
+    '  }',
+  ].join('\n'));
 
   const anchor = "app.on('window-all-closed', () => { /* keep running in the tray */ });";
   if (main.indexOf(anchor) === -1) {
     console.error('main anchor (window-all-closed) not found');
     process.exit(3);
   }
-  const eol = eolOf(main);
-  const guard = [
-    '',
-    '// Last line of defence: whatever the exit path, the transcription engine must not',
-    '// outlive this process. The helper waits for our PID to disappear, then kills what',
-    '// is left of the engine (lib/-kill-engine.ps1, "-" prefix: not a PowerShell operator).',
-    'function guardEngine() {',
-    "  if (process.platform !== 'win32' || !sidecar || sidecar.external) return;",
-    "  const script = path.join(__dirname, 'lib', '-kill-engine.ps1');",
-    '  if (!fs.existsSync(script)) return;',
-    '  try {',
-    "    const c = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', script,",
-    "      '-ParentPid', String(process.pid), '-ExeName', 'freeflow-stt.exe', '-Port', String(sidecar._port0 || sidecar.port)],",
-    '      { detached: true, stdio: \'ignore\', windowsHide: true,',
-    "        env: { ...process.env, FREEFLOW_PORTABLE_ROOT: path.dirname(process.execPath) } });",
-    '    c.unref();',
-    "    log('quit guard: watchdog armed');",
-    "  } catch (e) { log('quit guard:', e.message); }",
-    '}',
-    "app.on('will-quit', guardEngine);",
-    "process.on('SIGTERM', () => { guardEngine(); quitApp(); });",
-    "process.on('SIGINT', () => { guardEngine(); quitApp(); });",
-    "process.on('uncaughtException', (e) => { log('uncaught:', e && e.stack ? e.stack : String(e)); guardEngine(); });",
-  ].join(eol);
-  main = main.replace(anchor, anchor + eol + guard);
-  changed++;
+  main = main.replace(anchor, anchor + '\n' + GUARD);
 }
 
-// --- self-check, then write ---------------------------------------------------
-for (const [name, s, needles] of [
-  ['sidecar.js', sidecar, ['stopAll()', 'this.killed ||']],
-  ['main.js', main, ['stopAll()', 'guardEngine', '-kill-engine.ps1']],
+// --- auto-controle, puis ecriture ---------------------------------------------
+for (const [name, text, needles] of [
+  ['sidecar.js', sidecar, ['async stopAll()', 'this.killed || this.external']],
+  ['main.js', main, ['sidecar.stopAll()', 'function guardEngine()', '-kill-engine.ps1']],
 ]) {
   for (const n of needles) {
-    if (s.indexOf(n) === -1) {
+    if (text.indexOf(n) === -1) {
       console.error(name + ': self-check failed on "' + n + '"; nothing written');
       process.exit(4);
     }
   }
-}
-
-if (changed === 0) {
-  console.log('already patched: quit/engine cleanup');
-  process.exit(0);
 }
 
 try {
